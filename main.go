@@ -49,9 +49,11 @@ func main() {
 
 	var urlString string
 	var fileString string
+	var langString string
 
 	flag.StringVar(&urlString, "url", "", `The url to a markdown file`)
 	flag.StringVar(&fileString, "file", "", `The path to a markdown file`)
+	flag.StringVar(&langString, "lang", "", `Select specific language to print`)
 	flag.Parse()
 
 	var readMe []byte
@@ -81,7 +83,7 @@ func main() {
 	for _, t := range tokens {
 		snippet := getSnippet(t)
 
-		if snippet.content != "" {
+		if snippet.content != "" && (langString == "" || langString == snippet.lang) {
 			fmt.Printf("##### Lang : %s ###### \n", snippet.lang)
 			fmt.Println(snippet.content)
 		}
