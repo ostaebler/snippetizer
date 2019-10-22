@@ -1,20 +1,18 @@
 package main
 
 import (
-	"github.com/golang-commonmark/markdown"
+	"flag"
 	"fmt"
-	"net/http"
+	"github.com/golang-commonmark/markdown"
 	"io/ioutil"
 	"log"
-	"flag"
-	"net/url"
+	"net/http"
 )
 
 type snippet struct {
 	content string
-	lang string
+	lang    string
 }
-
 
 func getSnippet(tok markdown.Token) snippet {
 	switch tok := tok.(type) {
@@ -47,28 +45,34 @@ func readFromWeb(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-
 func main() {
 
 	var urlString string
-	flag.StringVar(&urlString, "url", "", `The url of the github repository`)
+	var fileString string
+
+	flag.StringVar(&urlString, "url", "", `The url to a markdown file`)
+	flag.StringVar(&fileString, "file", "", `The path to a markdown file`)
 	flag.Parse()
 
-	if urlString == "" {
-		log.Fatalln("Please, provide an url for the readme to parse.")
-	}
+	var readMe []byte
 
-	//Parse URL
-	u, err := url.Parse(urlString)
+	switch {
+	case urlString != "":
+		var err error
+		readMe, err = readFromWeb(urlString)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
 
-	if err != nil {
-		log.Fatalln("Impossible to parse the URL")
-	}
+	case fileString != "":
+		var err error
+		readMe, err = ioutil.ReadFile(fileString)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
 
-	//read the readme file
-	readMe, err := readFromWeb(fmt.Sprintf("https://raw.githubusercontent.com%s/master/README.md", u.Path))
-	if err != nil {
-		log.Fatalf(err.Error())
+	default:
+		log.Fatalln("Please, provide url or file parameter.")
 	}
 
 	md := markdown.New(markdown.XHTMLOutput(true), markdown.Nofollow(true))
