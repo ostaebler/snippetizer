@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/golang-commonmark/markdown"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/golang-commonmark/markdown"
 )
 
 type snippet struct {
